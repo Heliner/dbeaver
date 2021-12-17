@@ -3545,7 +3545,8 @@ public class ResultSetViewer extends Viewer
     public boolean checkForChanges() {
         // Check if we are dirty
         if (isDirty()) {
-            if (isCancelled){
+            //check if update previously was cancelled
+            if (isCancelled) {
                 return false;
             }
             int checkResult = new UITask<Integer>() {
@@ -3711,6 +3712,10 @@ public class ResultSetViewer extends Viewer
         if (!dataReceiver.isHasMoreData()) {
             return;
         }
+        if (!checkForChanges()) {
+            return;
+        }
+        isCancelled = false;
         DBSDataContainer dataContainer = getDataContainer();
         if (dataContainer != null && !model.isUpdateInProgress()) {
             dataReceiver.setHasMoreData(false);
@@ -4818,10 +4823,6 @@ public class ResultSetViewer extends Viewer
                 return Status.CANCEL_STATUS;
             }
             beforeDataRead();
-            if (!checkForChanges()){
-                return Status.CANCEL_STATUS;
-            }
-            isCancelled = false;
             try {
                 IStatus status = super.run(monitor);
                 afterDataRead();
